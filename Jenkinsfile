@@ -1,13 +1,8 @@
 pipeline {
     agent any
 
-
-    options {
-        customWorkspace "/var/jenkins_home/workspace/helloworld"
-    }
-
     tools {
-        jdk 'JDK17' // Ensure Java 17 is used
+        jdk 'JDK17'
         maven 'M399'
     }
 
@@ -20,13 +15,25 @@ pipeline {
         }
         stage("Build") {
             steps {
-              //  git branch: 'main', changelog: false, poll: false, url: 'https://github.com/Navarup/jenkins-hello-world'
-                sh 'mvn clean package -DskipTests=true'
+                ws("/var/jenkins_home/workspace/helloworld") {
+                    sh 'mvn clean package -DskipTests=true -DfinalName=hello-world-demo'
+                    archiveArtifacts artifacts: 'target/hello-world-demo.jar', fingerprint: true
+                }
             }
         }
-        stage("Unit Test"){
-            steps{
-                sh 'mvn test'
+        stage("Unit Test") {
+            steps {
+                ws("/var/jenkins_home/workspace/helloworld") {
+                    sh 'mvn test -Dsurefire.reportNameSuffix=-helloworld'
+                    junit 'target/surefire-reports/TEST-*-helloworld.xml'
+                }
+            }
+        }
+        stage("Cleanup") {
+            steps {
+                ws("/var/jenkins_home/workspace/helloworld") {
+                    sh 'mvn clean'
+                }
             }
         }
     }
