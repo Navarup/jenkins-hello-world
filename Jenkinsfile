@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'JDK17'
+        jdk 'JDK17' // Ensure Java 17 is used
         maven 'M399'
     }
 
@@ -15,19 +15,13 @@ pipeline {
         }
         stage("Build") {
             steps {
-                sh 'mvn clean package -DskipTests=true -DfinalName=hello-world-demo'
-                archiveArtifacts artifacts: 'target/hello-world-demo.jar', fingerprint: true
+              //  git branch: 'main', changelog: false, poll: false, url: 'https://github.com/Navarup/jenkins-hello-world'
+                sh 'mvn clean package -DskipTests=true'
             }
         }
         stage("Unit Test") {
             steps {
-                sh 'mvn test -Dsurefire.reportNameSuffix=-helloworld'
-                junit 'target/surefire-reports/TEST-*-helloworld.xml'
-            }
-        }
-        stage("Cleanup") {
-            steps {
-                sh 'mvn clean'
+                sh 'mvn test'
             }
         }
     }
