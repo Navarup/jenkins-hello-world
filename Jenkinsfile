@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+
+    options {
+        customWorkspace "/var/jenkins_home/workspace/helloworld"
+    }
+
     tools {
         jdk 'JDK17' // Ensure Java 17 is used
         maven 'M399'
